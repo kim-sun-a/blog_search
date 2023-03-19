@@ -41,5 +41,15 @@ class SearchHistoryControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("인기 검색어 조회")
+    void get_top10_keyword_test() throws Exception  {
+        mockMvc.perform(get("/topKeyword"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].keyword", is("인기검색어 F")))
+                .andExpect(jsonPath("$[0].keywordCnt", is(12)))
+                .andDo(print());
+    }
 
 }

@@ -30,6 +30,12 @@ INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 D', N
 INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 D', NOW());
 INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 D', NOW());
 
+INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 E', NOW());
+INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 E', NOW());
+INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 E', NOW());
+INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 E', NOW());
+INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 E', NOW());
+
 INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 F', NOW());
 INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 F', NOW());
 INSERT into SEARCH_HISTORY (keyword, search_date) values ('인기검색어 F', NOW());
