@@ -1,0 +1,20 @@
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    url: jdbc:h2:mem:searchBlog
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  rest-template:
+    conn-timeout: 10000
+    read-timeout: 600000
+    max-conn-total: 100
+    max-per-route: 10
+
+
+kakao.search.api:
+  url: http://dapi.kakao.com/v2/search/blog
+  key: 696a42f278da2b36366d067daf526e9c
