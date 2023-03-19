@@ -33,6 +33,25 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+def version = '0.1'
+def mainClassName= 'com.blog.search.BlogSearchApplication'
+
+jar {
+    manifest {
+        attributes(
+                'Title': 'BlogSearchAPI',
+                'Version': version,
+                'Main-Class': mainClassName,
+        )
+    }
+    from(configurations.runtimeClasspath.collect {
+        it.isDirectory() ? it : zipTree(it)
+    })
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    enabled = false
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
