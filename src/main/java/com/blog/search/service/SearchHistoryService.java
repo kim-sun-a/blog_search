@@ -2,7 +2,6 @@ package com.blog.search.service;
 
 import com.blog.search.domain.SearchHistory;
 import com.blog.search.error.ApiException;
-import com.blog.search.repository.RedisLockRepository;
 import com.blog.search.repository.SearchHistoryRepository;
 import com.blog.search.request.SearchDto;
 import com.blog.search.response.keywordRankResponse;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.blog.search.code.ErrorCode.NO_DATA;
 
@@ -22,7 +20,6 @@ import static com.blog.search.code.ErrorCode.NO_DATA;
 @RequiredArgsConstructor
 public class SearchHistoryService {
     private final SearchHistoryRepository searchHistoryRepository;
-    private final RedisLockRepository redisLockRepository;
 
     /**
      * 검색시 검색어 저장
