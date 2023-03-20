@@ -22,11 +22,11 @@ spring:
     init:
       data-locations: classpath:data.sql
       schema-locations: classpath:schema.sql
-  rest-template:
-    conn-timeout: 10000
-    read-timeout: 600000
-    max-conn-total: 100
-    max-per-route: 10
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        one-indexed-parameters: true
 
 
 kakao.search.api:

@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import static com.blog.search.code.ErrorCode.INVALID_PARAMETER;
 
@@ -25,11 +26,8 @@ public class SearchController {
 
     @GetMapping("/search")
     public ResponseEntity<Page<Blog>> getSearchBlogList(String keyword,
-                                                        @PageableDefault(size = 10, sort="accuracy", page = 1) Pageable pageable) throws IllegalAccessException {
-        if(StringUtils.isEmpty(keyword)) {
-            throw new ApiException(INVALID_PARAMETER);
-        }
-        return ResponseEntity.ok(blogSearchService.getBlogSearchList(keyword, pageable));
+                                                              @PageableDefault(size = 10, sort="accuracy") Pageable pageable) {
+        return ResponseEntity.ok(blogSearchService.getBlogSearchList(keyword, pageable).block());
     }
 
     @GetMapping("/topKeyword")

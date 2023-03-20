@@ -42,6 +42,17 @@ class SearchHistoryControllerTest {
     }
 
     @Test
+    @DisplayName("블로그 최신순 검색")
+    void get_blog_search_Sorting() throws Exception  {
+        String keyword = "집짓기";
+        mockMvc.perform(get("/search?keyword="+keyword+"&sort=recency"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()", is(10)))
+                .andExpect(jsonPath("$.content[0].title", is("부산발도르프학교 3학년 <b>집</b><b>짓기</b>")))
+                .andDo(print());
+    }
+
+    @Test
     @DisplayName("인기 검색어 조회")
     void get_top10_keyword_test() throws Exception  {
         mockMvc.perform(get("/topKeyword"))

@@ -7,6 +7,7 @@ import com.blog.search.response.keywordRankResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class SearchHistoryService {
     /**
      * 검색어 top 10 조회
      */
+    @Transactional(readOnly = true)
     public List<keywordRankResponse> getTop10Keyword() {
         return searchHistoryRepository.getTop10Keyword();
     }
