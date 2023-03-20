@@ -24,6 +24,7 @@ public class SearchHistoryService {
     /**
      * 검색시 검색어 저장
      */
+    @Transactional
     public void save(SearchDto searchDto) {
         Optional<SearchHistory> findKeyword = searchHistoryRepository.findByKeyword(searchDto.getKeyword());
         if(findKeyword.isEmpty()) {         // 처음 검색된 키워드라면
