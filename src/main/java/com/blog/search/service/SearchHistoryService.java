@@ -1,6 +1,5 @@
 package com.blog.search.service;
 
-import com.blog.search.code.ErrorCode;
 import com.blog.search.domain.SearchHistory;
 import com.blog.search.error.ApiException;
 import com.blog.search.repository.SearchHistoryRepository;
@@ -11,12 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.blog.search.code.ErrorCode.*;
+import static com.blog.search.code.ErrorCode.NO_DATA;
 
 @Service
 @Slf4j
