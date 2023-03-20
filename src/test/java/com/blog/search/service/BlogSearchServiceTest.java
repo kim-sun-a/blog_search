@@ -25,7 +25,7 @@ class BlogSearchServiceTest {
     void blog_search_get() {
         // given
         String query = "집짓기";
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("accuracy"));
+        Pageable pageable = PageRequest.of(1, 10, Sort.by("accuracy"));
 
 
         //when
@@ -42,7 +42,7 @@ class BlogSearchServiceTest {
     void blog_search_vail_keyword() {
         // given
         String query = "";
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("accuracy"));
+        Pageable pageable = PageRequest.of(1, 10, Sort.by("accuracy"));
 
         //then
         assertThrows(ApiException.class, () -> {

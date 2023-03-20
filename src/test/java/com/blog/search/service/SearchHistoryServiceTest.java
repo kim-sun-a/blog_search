@@ -12,6 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,5 +110,35 @@ class SearchHistoryServiceTest {
         //then
         assertEquals(3, top10.size());
         assertEquals(10, top10.get(0).getKeywordCnt());
+    }
+
+    @Test
+    @DisplayName("동시에 100건 검색어 입력")
+    void input_sameTIme_100_keyword() throws InterruptedException {
+        int threadCount = 100;
+        //멀티스레드 이용 ExecutorService : 비동기를 단순하게 처리할 수 있또록 해주는 java api
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+
+        //다른 스레드에서 수행이 완료될 때 까지 대기할 수 있도록 도와주는 API - 요청이 끝날때 까지 기다림
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                        try {
+                            searchHistoryRepository.save(SearchHistory.builder().keyword("검색어").searchDate(new Date()).build());
+                        }
+                        finally {
+                            latch.countDown();
+                        }
+                    }
+            );
+        }
+
+        latch.await();
+
+        List<SearchHistory> keywordList = searchHistoryRepository.findAll();
+
+        assertEquals(100L, keywordList.size());
+
     }
 }

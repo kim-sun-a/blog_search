@@ -6,6 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
+    NO_DATA(204, "검색 내용이 없습니다."),
     //400 BAD_REQUEST 잘못된 요청
     INVALID_PARAMETER(400, "파라미터 값을 확인해주세요."),
 
