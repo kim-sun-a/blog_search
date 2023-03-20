@@ -64,7 +64,7 @@ public class BlogSearchService {
                 .bodyToMono(ResponseApi.class)
                 .map(responseApi -> {
                     List<Blog> blogList = responseApi.getDocuments();
-                    searchHistoryService.save(new SearchDto(keyword, new Date()));
+                    searchHistoryService.save(SearchDto.builder().keyword(keyword).build());
                     return new PageImpl<>(blogList, pageRequest, blogList.size());
                 });
     }

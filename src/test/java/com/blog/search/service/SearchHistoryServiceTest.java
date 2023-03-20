@@ -33,14 +33,31 @@ class SearchHistoryServiceTest {
     @Test
     @DisplayName("검색어 저장")
     void save_keyword() {
-        SearchDto searchDto = SearchDto.builder().keyword("인기 검색어").searchDate(new Date()).build();
+        SearchDto searchDto = SearchDto.builder().keyword("인기검색어").build();
 
         searchHistoryService.save(searchDto);
 
         assertEquals(1L, searchHistoryRepository.count());
         SearchHistory searchHistory = searchHistoryRepository.findAll().get(0);
-        assertEquals("인기 검색어", searchHistory.getKeyword());
+        assertEquals("인기검색어", searchHistory.getKeyword());
+        assertEquals(1, searchHistory.getCount());
+    }
 
+
+    @Test
+    @DisplayName("검색어 저장시 검색횟수 증가 확인")
+    void increase_keyword() {
+        SearchDto searchDto1 = SearchDto.builder().keyword("인기검색어").build();
+        SearchDto searchDto2 = SearchDto.builder().keyword("인기검색어").build();
+
+        searchHistoryService.save(searchDto1);
+        searchHistoryService.save(searchDto2);
+
+
+        SearchHistory searchHistory = searchHistoryRepository.findByKeyword("인기검색어").get();
+        assertEquals(1L, searchHistoryRepository.count());
+        assertEquals("인기검색어", searchHistory.getKeyword());
+        assertEquals(2, searchHistory.getCount());
     }
 
 
@@ -48,27 +65,18 @@ class SearchHistoryServiceTest {
     @DisplayName("검색어 목록 조회")
     void get_keywords() {
         // given
-        List<SearchHistory> searchDtoListA = IntStream.range(0,10)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 a")
-                        .searchDate(new Date())
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListA);
-        List<SearchHistory> searchDtoListB = IntStream.range(0,5)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 b")
-                        .searchDate(new Date())
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListB);
-        List<SearchHistory> searchDtoListC = IntStream.range(0,3)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 c")
-                        .searchDate(new Date())
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListC);
+        for(int i=0; i<10; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 a").build();
+            searchHistoryService.save(searchDto);
+        }
+        for(int i=0; i<12; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 b").build();
+            searchHistoryService.save(searchDto);
+        }
+        for(int i=0; i<5; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 c").build();
+            searchHistoryService.save(searchDto);
+        }
 
         //when
         List<SearchHistory> findAll = searchHistoryRepository.findAll();
@@ -76,6 +84,7 @@ class SearchHistoryServiceTest {
         //then
         assertEquals(18, findAll.size());
         assertEquals("인기 검색어 a", findAll.get(0).getKeyword());
+        assertEquals(10, findAll.get(0).getCount());
     }
 
     @Test
@@ -85,21 +94,18 @@ class SearchHistoryServiceTest {
         List<SearchHistory> searchDtoListA = IntStream.range(0,10)
                 .mapToObj(i ->  SearchHistory.builder()
                         .keyword("인기 검색어 a")
-                        .searchDate(new Date())
                         .build())
                 .collect(Collectors.toList());
         searchHistoryRepository.saveAll(searchDtoListA);
         List<SearchHistory> searchDtoListB = IntStream.range(0,5)
                 .mapToObj(i ->  SearchHistory.builder()
                         .keyword("인기 검색어 b")
-                        .searchDate(new Date())
                         .build())
                 .collect(Collectors.toList());
         searchHistoryRepository.saveAll(searchDtoListB);
         List<SearchHistory> searchDtoListC = IntStream.range(0,3)
                 .mapToObj(i ->  SearchHistory.builder()
                         .keyword("인기 검색어 c")
-                        .searchDate(new Date())
                         .build())
                 .collect(Collectors.toList());
         searchHistoryRepository.saveAll(searchDtoListC);
@@ -113,32 +119,30 @@ class SearchHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("동시에 100건 검색어 입력")
-    void input_sameTIme_100_keyword() throws InterruptedException {
-        int threadCount = 100;
-        //멀티스레드 이용 ExecutorService : 비동기를 단순하게 처리할 수 있또록 해주는 java api
+    @DisplayName("동시에 검색어 입력")
+    void input_sameTIme_keyword() throws InterruptedException {
+        //given
         ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch latch = new CountDownLatch(5);
 
-        //다른 스레드에서 수행이 완료될 때 까지 대기할 수 있도록 도와주는 API - 요청이 끝날때 까지 기다림
-        CountDownLatch latch = new CountDownLatch(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                        try {
-                            searchHistoryRepository.save(SearchHistory.builder().keyword("검색어").searchDate(new Date()).build());
-                        }
-                        finally {
-                            latch.countDown();
-                        }
-                    }
-            );
+        //when
+        for(int i = 0; i<100; i++) {
+            executorService.submit(() -> execute(SearchDto.builder().keyword("A").build(), latch));    // A 검색시 검색횟수가 1회 추가
+            searchHistoryService.getTop10Keyword();
         }
-
         latch.await();
 
-        List<SearchHistory> keywordList = searchHistoryRepository.findAll();
 
-        assertEquals(100L, keywordList.size());
+
+
+    }
+
+    private void execute(SearchDto searchHistory, CountDownLatch countDownLatch) {
+        try {
+            searchHistoryService.save(searchHistory);
+        } finally {
+            countDownLatch.countDown();
+        }
 
     }
 }

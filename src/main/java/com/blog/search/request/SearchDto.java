@@ -12,11 +12,11 @@ import java.util.Date;
 @ToString
 public class SearchDto {
     private String keyword;         // 검색어
-    private Date searchDate;        // 검색날짜
+    private Integer count;
 
     @Builder
-    public SearchDto(String keyword, Date searchDate) {
+    public SearchDto(String keyword, Integer count) {
         this.keyword = keyword;
-        this.searchDate = searchDate;
+        this.count = count;
     }
 }

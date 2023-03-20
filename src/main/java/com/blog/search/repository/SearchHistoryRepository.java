@@ -11,4 +11,5 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
     @Query(nativeQuery = true,
             value = "select keyword, count(keyword) as keywordCnt from search_history group by keyword order by keywordCnt desc limit 0, 10")
     Optional<keywordRankResponse> getTop10Keyword();
+    Optional<SearchHistory> findByKeyword(String keyword);
 }

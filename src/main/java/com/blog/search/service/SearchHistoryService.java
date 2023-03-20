@@ -2,6 +2,7 @@ package com.blog.search.service;
 
 import com.blog.search.domain.SearchHistory;
 import com.blog.search.error.ApiException;
+import com.blog.search.repository.RedisLockRepository;
 import com.blog.search.repository.SearchHistoryRepository;
 import com.blog.search.request.SearchDto;
 import com.blog.search.response.keywordRankResponse;
@@ -21,13 +22,19 @@ import static com.blog.search.code.ErrorCode.NO_DATA;
 @RequiredArgsConstructor
 public class SearchHistoryService {
     private final SearchHistoryRepository searchHistoryRepository;
+    private final RedisLockRepository redisLockRepository;
 
     /**
      * 검색시 검색어 저장
      */
     public void save(SearchDto searchDto) {
-        SearchHistory searchHistory = SearchHistory.builder().keyword(searchDto.getKeyword()).searchDate(searchDto.getSearchDate()).build();
-        searchHistoryRepository.save(searchHistory);
+        Optional<SearchHistory> findKeyword = searchHistoryRepository.findByKeyword(searchDto.getKeyword());
+        if(findKeyword.isEmpty()) {         // 처음 검색된 키워드라면
+            searchHistoryRepository.save(SearchHistory.builder().keyword(searchDto.getKeyword()).count(1).build());
+        } else {                            // 검색된 기록이 있는 키워드라면
+            findKeyword.get().increaseCount(1);
+            searchHistoryRepository.save(SearchHistory.builder().keyword(searchDto.getKeyword()).count(findKeyword.get().getCount()).build());
+        }
     }
 
 
@@ -37,9 +44,7 @@ public class SearchHistoryService {
     @Transactional(readOnly = true)
     public List<keywordRankResponse> getTop10Keyword() {
         Optional<keywordRankResponse> top10Keyword = searchHistoryRepository.getTop10Keyword();
-        log.info("empty list: "+top10Keyword);
         if(top10Keyword.isEmpty()) {
-            log.info("test");
             throw new ApiException(NO_DATA);
         }
         return top10Keyword.stream().collect(Collectors.toList());

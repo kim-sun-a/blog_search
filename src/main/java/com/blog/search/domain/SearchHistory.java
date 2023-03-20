@@ -2,8 +2,10 @@ package com.blog.search.domain;
 
 import lombok.*;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 @Getter
@@ -16,5 +18,10 @@ public class SearchHistory {
     private Long id;
 
     private String keyword;         // 검색어
-    private Date searchDate;        // 검색날짜
+    private Integer count;          // 검색횟수
+
+    // ======= 비즈니스 로직 ========
+    public void increaseCount(final Integer count) {
+        this.count = this.count + count;
+    }
 }
