@@ -12,9 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,12 +42,12 @@ class SearchHistoryServiceTest {
         assertEquals(1L, searchHistoryRepository.count());
         SearchHistory searchHistory = searchHistoryRepository.findAll().get(0);
         assertEquals("인기검색어", searchHistory.getKeyword());
-        assertEquals(1, searchHistory.getCount());
+        assertEquals(1, searchHistory.getSearchCnt());
     }
 
 
     @Test
-    @DisplayName("검색어 저장시 검색횟수 증가 확인")
+    @DisplayName("동일한 저장시 검색횟수 증가 확인")
     void increase_keyword() {
         SearchDto searchDto1 = SearchDto.builder().keyword("인기검색어").build();
         SearchDto searchDto2 = SearchDto.builder().keyword("인기검색어").build();
@@ -57,7 +59,7 @@ class SearchHistoryServiceTest {
         SearchHistory searchHistory = searchHistoryRepository.findByKeyword("인기검색어").get();
         assertEquals(1L, searchHistoryRepository.count());
         assertEquals("인기검색어", searchHistory.getKeyword());
-        assertEquals(2, searchHistory.getCount());
+        assertEquals(2, searchHistory.getSearchCnt());
     }
 
 
@@ -66,15 +68,15 @@ class SearchHistoryServiceTest {
     void get_keywords() {
         // given
         for(int i=0; i<10; i++) {
-            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 a").build();
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어a").build();
             searchHistoryService.save(searchDto);
         }
         for(int i=0; i<12; i++) {
-            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 b").build();
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어b").build();
             searchHistoryService.save(searchDto);
         }
         for(int i=0; i<5; i++) {
-            SearchDto searchDto = SearchDto.builder().keyword("인기 검색어 c").build();
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어c").build();
             searchHistoryService.save(searchDto);
         }
 
@@ -82,64 +84,61 @@ class SearchHistoryServiceTest {
         List<SearchHistory> findAll = searchHistoryRepository.findAll();
 
         //then
-        assertEquals(18, findAll.size());
-        assertEquals("인기 검색어 a", findAll.get(0).getKeyword());
-        assertEquals(10, findAll.get(0).getCount());
+        assertEquals(3, findAll.size());
+        assertEquals("인기검색어a", findAll.get(0).getKeyword());
+        assertEquals(10, findAll.get(0).getSearchCnt());
     }
 
     @Test
     @DisplayName("검색어 순위 조회")
     void top_10_keyword() {
         // given
-        List<SearchHistory> searchDtoListA = IntStream.range(0,10)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 a")
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListA);
-        List<SearchHistory> searchDtoListB = IntStream.range(0,5)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 b")
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListB);
-        List<SearchHistory> searchDtoListC = IntStream.range(0,3)
-                .mapToObj(i ->  SearchHistory.builder()
-                        .keyword("인기 검색어 c")
-                        .build())
-                .collect(Collectors.toList());
-        searchHistoryRepository.saveAll(searchDtoListC);
+        for(int i=0; i<10; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어a").build();
+            searchHistoryService.save(searchDto);
+        }
+        for(int i=0; i<12; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어b").build();
+            searchHistoryService.save(searchDto);
+        }
+        for(int i=0; i<5; i++) {
+            SearchDto searchDto = SearchDto.builder().keyword("인기검색어c").build();
+            searchHistoryService.save(searchDto);
+        }
 
         //when
         List<keywordRankResponse> top10 = searchHistoryService.getTop10Keyword();
 
         //then
         assertEquals(3, top10.size());
-        assertEquals(10, top10.get(0).getKeywordCnt());
+        assertEquals(12, top10.get(0).getSearchCnt());
     }
 
+
+    private final AtomicLong count = new AtomicLong(0);
     @Test
     @DisplayName("동시에 검색어 입력")
     void input_sameTIme_keyword() throws InterruptedException {
+
         //given
         ExecutorService executorService = Executors.newFixedThreadPool(32);
-        CountDownLatch latch = new CountDownLatch(5);
+        CountDownLatch latch = new CountDownLatch(100);
 
         //when
         for(int i = 0; i<100; i++) {
             executorService.submit(() -> execute(SearchDto.builder().keyword("A").build(), latch));    // A 검색시 검색횟수가 1회 추가
-            searchHistoryService.getTop10Keyword();
         }
         latch.await();
 
-
-
-
     }
 
-    private void execute(SearchDto searchHistory, CountDownLatch countDownLatch) {
+    private synchronized void execute(SearchDto searchHistory, CountDownLatch countDownLatch) {
         try {
             searchHistoryService.save(searchHistory);
+            SearchHistory byKeyword = searchHistoryRepository.findByKeyword(searchHistory.getKeyword()).get();
+            long result = count.updateAndGet((value) ->  byKeyword.getSearchCnt());
+            System.out.println("result = " + result);
+
         } finally {
             countDownLatch.countDown();
         }

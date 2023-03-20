@@ -18,10 +18,10 @@ public class SearchHistory {
     private Long id;
 
     private String keyword;         // 검색어
-    private Integer count;          // 검색횟수
+    private Integer searchCnt;          // 검색횟수
 
     // ======= 비즈니스 로직 ========
     public void increaseCount(final Integer count) {
-        this.count = this.count + count;
+        this.searchCnt = this.searchCnt + count;
     }
 }
