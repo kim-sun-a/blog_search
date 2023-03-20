@@ -33,7 +33,7 @@ public class SearchHistoryService {
             searchHistoryRepository.save(SearchHistory.builder().keyword(searchDto.getKeyword()).count(1).build());
         } else {                            // 검색된 기록이 있는 키워드라면
             findKeyword.get().increaseCount(1);
-            searchHistoryRepository.save(SearchHistory.builder().keyword(searchDto.getKeyword()).count(findKeyword.get().getCount()).build());
+            searchHistoryRepository.save(findKeyword.get());
         }
     }
 
