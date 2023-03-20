@@ -41,13 +41,13 @@ public class BlogSearchService {
         if(StringUtils.isEmpty(keyword)) {
             throw new ApiException(INVALID_PARAMETER);
         }
-        int pageNo = (pageable.getPageNumber()==0) ? 0 : (pageable.getPageNumber()-1);
-        PageRequest pageRequest = PageRequest.of(pageNo, pageable.getPageSize(), pageable.getSort());
+        int page = (pageable.getPageNumber()==0) ? 0 : (pageable.getPageNumber()-1);
+        PageRequest pageRequest = PageRequest.of(page, pageable.getPageSize(), pageable.getSort());
         URI url = UriComponentsBuilder
                     .fromUriString(searchUrl) //기본 url
                     .queryParam("query", keyword) //검색어
                     .queryParam("sort", pageRequest.getSort())
-                    .queryParam("page", pageRequest.getPageNumber())
+                    .queryParam("page", page+1)
                     .queryParam("size", pageRequest.getPageSize())
                     .build()
                     .encode(StandardCharsets.UTF_8) //인코딩

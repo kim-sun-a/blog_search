@@ -30,5 +30,5 @@ spring:
 
 
 kakao.search.api:
-  url: http://dapi.kakao.com/v2/search/blog
+  url: https://dapi.kakao.com/v2/search/blog
   key: 696a42f278da2b36366d067daf526e9c
