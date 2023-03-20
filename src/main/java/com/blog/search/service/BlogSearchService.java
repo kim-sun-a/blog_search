@@ -50,7 +50,6 @@ public class BlogSearchService {
                     .queryParam("page", page+1)
                     .queryParam("size", pageRequest.getPageSize())
                     .build()
-                    .encode(StandardCharsets.UTF_8) //인코딩
                     .toUri();
 
         return WebClient.builder()
@@ -63,6 +62,7 @@ public class BlogSearchService {
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new ApiException(INTERNAL_SERVER_ERROR)))
                 .bodyToMono(ResponseApi.class)
                 .map(responseApi -> {
+                    log.info("request Url: " + url.toString());
                     List<Blog> blogList = responseApi.getDocuments();
                     searchHistoryService.save(SearchDto.builder().keyword(keyword).build());
                     return new PageImpl<>(blogList, pageRequest, blogList.size());
