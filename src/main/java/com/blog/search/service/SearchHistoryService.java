@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.blog.search.code.ErrorCode.NO_DATA;
+import static com.blog.search.code.StatusCode.NO_DATA;
 
 @Service
 @Slf4j

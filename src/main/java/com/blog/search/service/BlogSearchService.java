@@ -17,12 +17,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.List;
 
-import static com.blog.search.code.ErrorCode.INTERNAL_SERVER_ERROR;
-import static com.blog.search.code.ErrorCode.INVALID_PARAMETER;
+import static com.blog.search.code.StatusCode.INTERNAL_SERVER_ERROR;
+import static com.blog.search.code.StatusCode.INVALID_PARAMETER;
 
 @Slf4j
 @Service
@@ -38,7 +36,7 @@ public class BlogSearchService {
      * blog 검색어에 따른 조회
      */
     public Mono<Page<Blog>> getBlogSearchList(String keyword, Pageable pageable) {
-        if(StringUtils.isEmpty(keyword)) {
+        if(StringUtils.isEmpty(keyword) && StringUtils.isBlank(keyword)) {
             throw new ApiException(INVALID_PARAMETER);
         }
         int page = (pageable.getPageNumber()==0) ? 0 : (pageable.getPageNumber()-1);
