@@ -28,7 +28,7 @@
 ```
 $ git clone https://github.com/kim-sun-a/blog_search.git
 $ cd blog_search
-$ ./gredlew clean build
+$ ./gredlew clean bootJar
 $ java -jar build/libs/search-0.0.1-SNAPSHOT.jar
 ```
 
