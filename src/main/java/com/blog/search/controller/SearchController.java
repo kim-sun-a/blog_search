@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -27,8 +28,8 @@ public class SearchController {
     private final SearchHistoryService searchHistoryService;
 
     @GetMapping("/search")
-    public ResponseEntity<ResponseDto> getSearchBlogList(@RequestParam("keyword") String keyword,
-                                                              @PageableDefault(page = 1, size = 10, sort="accuracy") Pageable pageable) {
+    public ResponseEntity<ResponseDto> getSearchBlogList(@RequestParam("keyword") @NotNull String keyword,
+                                                         @PageableDefault(page = 1, size = 10, sort="accuracy") Pageable pageable) {
         Page<Blog> searchBlogList = blogSearchService.getBlogSearchList(keyword, pageable).block();
         ResponseDto responseDto = ResponseDto.builder().status(StatusCode.OK).message("정상 처리").data(searchBlogList).build();
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

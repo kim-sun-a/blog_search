@@ -10,7 +10,7 @@ public enum StatusCode {
     OK(HttpStatus.OK, "정상 처리되었습니다."),
     NO_DATA(HttpStatus.NO_CONTENT, "검색 내용이 없습니다."),
     //400 BAD_REQUEST 잘못된 요청
-    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "파라미터 값을 확인해주세요."),
+    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "검색어를 확인해주세요."),
 
     //404 NOT_FOUND 잘못된 리소스 접근
     URL_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 URL입니다."),
